@@ -42,10 +42,11 @@ class Rock (GameElement):
         player.inventory.append(self)
         GAME_BOARD.draw_msg("Oh. You just picked up a rock... Really?! You have %d items." % (len(player.inventory)))
         response = check_inventory(player.inventory)
+        # response = player.check_inventory()
         print "%r" % response
 
 class Character(GameElement):
-    IMAGE = "Horns"
+    IMAGE = "OurGirl"
 
     def __init__(self):
         GameElement.__init__(self)
@@ -69,9 +70,6 @@ class Bluegem(GameElement):
     def interact(self, player):
         player.inventory.append(self)
         GAME_BOARD.draw_msg("You just acquired a gem! you have %d items!" % (len(player.inventory)))
-        response = check_inventory(player.inventory)
-        print "%r" % response
-
 
 class Greengem(GameElement):
     IMAGE = "GreenGem"
@@ -80,8 +78,6 @@ class Greengem(GameElement):
     def interact(self, player):
         player.inventory.append(self)
         GAME_BOARD.draw_msg("You just acquired a gem! you have %d items!" % (len(player.inventory)))
-        response = check_inventory(player.inventory)
-        print "%r" % response
 
 class Orangegem(GameElement):
     IMAGE = "OrangeGem"
@@ -96,28 +92,51 @@ class Shorttree(GameElement):
     SOLID = True   
 
 class Dude (GameElement):
-    IMAGE = "Boy" 
-    SOLID = True    
+    IMAGE = "OurDude" 
+    SOLID = True
 
     def interact(self, player):
+
+        response_dict = {
+            1: "I ain't sayin I'm a gold digger, but....",
+            2: "If you like it you should have put more gems on it. Game over, not interested.",
+            3: "OMG, I totally love you!!! My heart is yours. Use it to unlock the door.",
+        }
+
         response = check_inventory(player.inventory)
-        GAME_BOARD.draw_msg("%r" % response)
+        GAME_BOARD.draw_msg("%r" % response_dict[response])
+
+        if response == 3:
+            heart = Heart()
+            GAME_BOARD.register(heart)
+            GAME_BOARD.set_el(1, 4, heart)
+
+            dooropen = Dooropen()
+            GAME_BOARD.register(dooropen)
+            GAME_BOARD.set_el(0, 4, dooropen)
+
 
 class Doorclosed (GameElement):
-    IMAGE = "DoorClosed"
+    IMAGE = "OurDoorClosed"
     SOLID = True
 
 class Dooropen (GameElement):
-    IMAGE = "DoorOpen"
-    SOLID = True
+    IMAGE = "OurDoorOpen"
+    SOLID = False
+
+    def interact(self, player):
+        GAME_BOARD.draw_msg("Go through the door to take us to the next level, baby...")
+
 
 class Heart (GameElement):
     IMAGE = "Heart"
     SOLID = False
 
     def interact(self, player):
-        #only if player inventory has 3 gems
-        pass
+        player.inventory = []
+        player.inventory.append(self)
+        GAME_BOARD.draw_msg("Now you have my heart. Use it to get the heck out of here!")
+        
 
 def check_inventory(inventory):
     
@@ -128,17 +147,17 @@ def check_inventory(inventory):
             carrying_rock = True
 
     if len(inventory) < 3:
-        response = "I ain't sayin I'm a gold digger, but...."
+        response = 1
         return response
     
     elif len(inventory) == 3:
         GAME_BOARD.draw_msg("You've reached your item limit - see what you can exhange it for ..")
         
         if carrying_rock:
-            response = "If you like it you should have put more gems on it. Game over, not interested."
+            response = 2
             return response
         else:
-            response = "OMG, I totally love you!!! My heart is yours. Use it to unlock the door."
+            response = 3
             return response
 
 def initialize():

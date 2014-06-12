@@ -41,6 +41,8 @@ class Rock (GameElement):
     def interact(self, player):
         player.inventory.append(self)
         GAME_BOARD.draw_msg("Oh. You just picked up a rock... Really?! You have %d items." % (len(player.inventory)))
+        response = check_inventory(player.inventory)
+        print "%r" % response
 
 class Character(GameElement):
     IMAGE = "Horns"
@@ -67,6 +69,9 @@ class Bluegem(GameElement):
     def interact(self, player):
         player.inventory.append(self)
         GAME_BOARD.draw_msg("You just acquired a gem! you have %d items!" % (len(player.inventory)))
+        response = check_inventory(player.inventory)
+        print "%r" % response
+
 
 class Greengem(GameElement):
     IMAGE = "GreenGem"
@@ -75,6 +80,8 @@ class Greengem(GameElement):
     def interact(self, player):
         player.inventory.append(self)
         GAME_BOARD.draw_msg("You just acquired a gem! you have %d items!" % (len(player.inventory)))
+        response = check_inventory(player.inventory)
+        print "%r" % response
 
 class Orangegem(GameElement):
     IMAGE = "OrangeGem"
@@ -93,11 +100,8 @@ class Dude (GameElement):
     SOLID = True    
 
     def interact(self, player):
-        player.inventory.append(self)
-    # if player.inventory has 3 gems, exhange for heart, say "Gems CAN buy you love!!"
-    # elif player.inventory != 3 gems, loop to say "Well, we ARE living in a gem world...So...yeah...", 
-    # "I ain't sayin I'm a gold digger", "If you like it you should put more gems on it"
-        GAME_BOARD.draw_msg("Well, we ARE living in a gem world...So...yeah...")
+        response = check_inventory(player.inventory)
+        GAME_BOARD.draw_msg("%r" % response)
 
 class Doorclosed (GameElement):
     IMAGE = "DoorClosed"
@@ -107,6 +111,35 @@ class Dooropen (GameElement):
     IMAGE = "DoorOpen"
     SOLID = True
 
+class Heart (GameElement):
+    IMAGE = "Heart"
+    SOLID = False
+
+    def interact(self, player):
+        #only if player inventory has 3 gems
+        pass
+
+def check_inventory(inventory):
+    
+    #check if one of the items is a rock
+    carrying_rock = False
+    for i in inventory:
+        if type(i) == Rock:
+            carrying_rock = True
+
+    if len(inventory) < 3:
+        response = "I ain't sayin I'm a gold digger, but...."
+        return response
+    
+    elif len(inventory) == 3:
+        GAME_BOARD.draw_msg("You've reached your item limit - see what you can exhange it for ..")
+        
+        if carrying_rock:
+            response = "If you like it you should have put more gems on it. Game over, not interested."
+            return response
+        else:
+            response = "OMG, I totally love you!!! My heart is yours. Use it to unlock the door."
+            return response
 
 def initialize():
     """Put game initialization code here"""
@@ -133,7 +166,7 @@ def initialize():
     GAME_BOARD.set_el(6, 0, PLAYER)
     print PLAYER
 
-    GAME_BOARD.draw_msg("This game is wicked awesome.")
+    GAME_BOARD.draw_msg("Welcome to the Game of Love. Collect 3 items to try to win the heart of the dude!")
 
     # placement of gems
     bluegem = Bluegem()
@@ -203,7 +236,6 @@ def keyboard_handler():
 
         #check position
         if (next_x > 6 or next_x < 0 or next_y > 6 or next_y < 0):
-            # raise "IndexError": 
             GAME_BOARD.draw_msg("Stop running away!  Are you afraid of committment?")
         else:
             existing_el = GAME_BOARD.get_el(next_x, next_y)
